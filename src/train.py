@@ -1,11 +1,13 @@
-
 import time
+from tqdm import tqdm
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from tqdm import tqdm
 from torch.optim import AdamW
+
 
 
 def train_model(train_dataloader: torch.utils.data.DataLoader,
@@ -87,7 +89,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
     # Logging
     train_loss_history.append(loss.item())
 
-    return train_loss_history, elapsed_time
+    return train_loss_history, elapsed_time, fact_model, law_model
 
 
 def valid_model(valid_dataset: torch.utils.data.Dataset,
@@ -116,36 +118,38 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
         law_embs = []
 
         for law in label_corpus:
-            print(law)
             tokenized_label = law_tokenizer(law, padding='max_length', truncation=True, return_tensors='pt').to(device=device)
-            embedded_label = law_model(tokenized_label).pooler_output.cpu().numpy()
-            law_embs.append(embedded_label)
-
+            embedded_label = law_model(**tokenized_label).pooler_output.cpu()
+            law_embs.append(embedded_label.squeeze())
+            
         # Accuracy of Top N Ranked Labels
         top_1, top_5, top_10, top_25 = 0, 0, 0, 0
 
         # Embed Facts in Valid Loader
         fact_model.eval()
+        fact_model.to('cpu')
 
-        for j in tqdm(range(len(valid_dataset))):
-            embedded_fact = fact_model(valid_dataset[j]['f_input_ids'],
-                                        valid_dataset[j]['f_token_type_ids'],
-                                        valid_dataset[j]['f_attention_mask']).pooler_output.cpu()
-
+        for fact in valid_dataset:
+            embedded_fact = fact_model(fact['f_input_ids'].unsqueeze(0).detach().cpu(),
+                                       fact['f_token_type_ids'].unsqueeze(0).detach().cpu(),
+                                       fact['f_attention_mask'].unsqueeze(0).detach().cpu()).pooler_output.cpu()
             # Calculate Similarity Score with 177 labels
-            valid_sim_scores = torch.matmul(embedded_fact, torch.transpose(law_embs, 0, 1))
+            valid_sim_scores = torch.zeros(len(law_embs))
+            for i, emb in enumerate(law_embs):
+                score = torch.matmul(embedded_fact, emb)
+                valid_sim_scores[i] = score
 
             # Sorting
-            rank = torch.argsort(valid_sim_scores, dim=1, descending=True).squeeze()
+            rank = valid_sim_scores.sort()[0]
 
             # Update Accuracy of Top N Ranked
-            if valid_dataset[j]['laws_service_id'] == rank[0]:
+            if fact['laws_service_id'] == rank[0]:
                 top_1 += 1
-            if valid_dataset[j]['laws_service_id'] in rank[0:5]:
+            if fact['laws_service_id'] in rank[0:5]:
                 top_5 += 1
-            if valid_dataset[j]['laws_service_id'] in rank[0:10]:
+            if fact['laws_service_id'] in rank[0:10]:
                 top_10 += 1
-            if valid_dataset[j]['laws_service_id'] in rank[0:25]:
+            if fact['laws_service_id'] in rank[0:25]:
                 top_25 += 1
 
         top_1_history.append(top_1 / len(valid_dataset))
@@ -153,7 +157,7 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
         top_10_history.append(top_10 / len(valid_dataset))
         top_25_history.append(top_25 / len(valid_dataset))
 
-    loss = loss.mean()
+    loss = np.mean(loss)
     print(f"[{time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}] Epoch {epoch + 1:3d}  Train Loss: {loss:6.5f} | Top 1 Accuracy : {top_1 / len(valid_dataset):1.5f} | Top  5 Accuracy : {top_5 / len(valid_dataset):1.5f} | Top 10 Accuracy : {top_10 / len(valid_dataset):1.5f}")
 
     return top_1_history, top_5_history, top_10_history, top_25_history

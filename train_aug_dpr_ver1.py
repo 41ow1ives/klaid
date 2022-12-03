@@ -38,17 +38,17 @@ class AugDPR(object):
         
         # wandb_init(fact_model, law_model, self.arglist)
         for epoch in range(self.arglist.num_epochs):
-            loss_history, elapsed_time = train_model(train_dataloader=train_loader,
-                                                     fact_model=fact_model,
-                                                     law_model=law_model,
-                                                     batch_size=self.arglist.batch_size,
-                                                     scheduler=optim.lr_scheduler.StepLR,
-                                                     weight_decay=self.arglist.weight_decay,
-                                                     adam_eps=self.arglist.adam_eps,
-                                                     step_size=self.arglist.step_size,
-                                                     gamma=self.arglist.gamma,
-                                                     lr=self.arglist.lr,
-                                                     device=self.device)
+            loss_history, elapsed_time, fact_model, law_model = train_model(train_dataloader=train_loader,
+                                                                            fact_model=fact_model,
+                                                                            law_model=law_model,
+                                                                            batch_size=self.arglist.batch_size,
+                                                                            scheduler=optim.lr_scheduler.StepLR,
+                                                                            weight_decay=self.arglist.weight_decay,
+                                                                            adam_eps=self.arglist.adam_eps,
+                                                                            step_size=self.arglist.step_size,
+                                                                            gamma=self.arglist.gamma,
+                                                                            lr=self.arglist.lr,
+                                                                            device=self.device)
             top_1, top_5, top_10, top_25 = valid_model(valid_dataset=valid_dataset,
                                                        label_corpus=label_corpus,
                                                        law_tokenizer=law_tokenizer,
@@ -72,12 +72,12 @@ class AugDPR(object):
     def save_dpr(self, fact_model, law_model):
         # 6. Save Models
         print("\n6. Save Models")
-        fact_dir = os.pathjoin(self.arglist.model_dir, 'fact_model')
-        law_dir = os.pathjoin(self.arglist.model_dir, 'law_model')
+        fact_dir = os.path.join(self.arglist.model_dir, 'fact_model')
+        law_dir = os.path.join(self.arglist.model_dir, 'law_model')
         os.makedirs(fact_dir, exist_ok=True)
         os.makedirs(law_dir, exist_ok=True)
-        fact_dir = fact_dir + time.strftime('%Y%m%d%H', time.time()) + '.pt'
-        law_dir = law_dir + time.strftime('%Y%m%d%H', time.time()) + '.pt'
+        fact_dir = fact_dir + "/" + time.strftime("%m_%d_%H", time.localtime(time.time())) + '.pt'
+        law_dir = law_dir + "/" + time.strftime("%m_%d_%H", time.localtime(time.time())) + '.pt'
         torch.save(fact_model.state_dict(), fact_dir)
         torch.save(law_model.state_dict(), law_dir)    
         
