@@ -60,8 +60,14 @@ class AugDPR(object):
                                                         epoch=epoch,
                                                         loss=loss_history,
                                                         device=self.device)
-            if best_top_1 <= max(top_1):
-                best_top_1 = max(top_1)
+            wandb.log({'train_loss':np.mean(loss_history),
+                       'top_1_mean':np.mean(top_1),
+                       'top_5_mean':np.mean(top_5),
+                       'top_10_mean':np.mean(top_10),
+                       'top_25_mean':np.mean(top_25)})
+            
+            if best_top_1 <= np.mean(top_1):
+                best_top_1 = np.mean(top_1)
                 print(f"\n Saving Models... epoch: {epoch}, score: {best_top_1}")
                 save_dpr(fact_model, law_model, epoch, best_top_1, arglist)
                 
