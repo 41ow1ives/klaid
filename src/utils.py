@@ -1,4 +1,5 @@
 import os
+import time
 import random
 import numpy as np
 import torch
@@ -23,3 +24,15 @@ def clean(x):
     x = x.replace('()', '')
     x = x.strip()
     return x
+
+def save_dpr(fact_model, law_model, epoch, score, arglist):
+    # 6. Save Models
+    print("\n6. Save Models")
+    fact_dir = os.path.join(arglist.model_dir, 'fact_model')
+    law_dir = os.path.join(arglist.model_dir, 'law_model')
+    os.makedirs(fact_dir, exist_ok=True)
+    os.makedirs(law_dir, exist_ok=True)
+    fact_dir = fact_dir + "/" + time.strftime("%m_%d_%H", time.localtime(time.time())) + f'epoch{epoch}_score{score}.pt'
+    law_dir = law_dir + "/" + time.strftime("%m_%d_%H", time.localtime(time.time())) + f'epoch{epoch}_score{score}.pt'
+    torch.save(fact_model.state_dict(), fact_dir)
+    torch.save(law_model.state_dict(), law_dir)    

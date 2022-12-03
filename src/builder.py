@@ -49,8 +49,8 @@ class Builder:
                                               df.loc[:, 'laws_service_id'],
                                               test_size=self.arglist.test_size,
                                               stratify=df.loc[:, 'laws_service_id'])
-        train = pd.concat([xtr.reset_index(drop=True), ytr.reset_index(drop=True)], axis=1).iloc[:100]
-        valid = pd.concat([xte.reset_index(drop=True), yte.reset_index(drop=True)], axis=1).iloc[:100]
+        train = pd.concat([xtr.reset_index(drop=True), ytr.reset_index(drop=True)], axis=1)
+        valid = pd.concat([xte.reset_index(drop=True), yte.reset_index(drop=True)], axis=1)
 
         return train, valid
 

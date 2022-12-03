@@ -6,7 +6,7 @@ import argparse
 import torch.optim as optim
 from sklearn.model_selection import StratifiedKFold
 from src.train import *
-from src.utils import set_seed
+from src.utils import set_seed, save_dpr
 from src.args import parse_default_args
 from src.builder import Builder
 from src.logger import wandb_init
@@ -36,7 +36,9 @@ class AugDPR(object):
         # 4. Train DPR Model
         print("\n4. Training Dense Passage Retrieval for Legal Services...")
         
-        # wandb_init(fact_model, law_model, self.arglist)
+        best_top_1 = -1
+        wandb_init(fact_model, law_model, self.arglist)
+        
         for epoch in range(self.arglist.num_epochs):
             loss_history, elapsed_time, fact_model, law_model = train_model(train_dataloader=train_loader,
                                                                             fact_model=fact_model,
@@ -58,7 +60,12 @@ class AugDPR(object):
                                                         epoch=epoch,
                                                         loss=loss_history,
                                                         device=self.device)
-        # wandb.finish()
+            if best_top_1 <= max(top_1):
+                best_top_1 = max(top_1)
+                print(f"\n Saving Models... epoch: {epoch}, score: {best_top_1}")
+                save_dpr(fact_model, law_model, epoch, best_top_1, arglist)
+                
+        wandb.finish()
 
 
         # 5. Return Valid Accuracy and Train Loss
@@ -69,27 +76,12 @@ class AugDPR(object):
         print(f"    Top 25 Retrieval Accuracy :", top_25[-1])
         return fact_model, law_model
         
-    def save_dpr(self, fact_model, law_model):
-        # 6. Save Models
-        print("\n6. Save Models")
-        fact_dir = os.path.join(self.arglist.model_dir, 'fact_model')
-        law_dir = os.path.join(self.arglist.model_dir, 'law_model')
-        os.makedirs(fact_dir, exist_ok=True)
-        os.makedirs(law_dir, exist_ok=True)
-        fact_dir = fact_dir + "/" + time.strftime("%m_%d_%H", time.localtime(time.time())) + '.pt'
-        law_dir = law_dir + "/" + time.strftime("%m_%d_%H", time.localtime(time.time())) + '.pt'
-        torch.save(fact_model.state_dict(), fact_dir)
-        torch.save(law_model.state_dict(), law_dir)    
-        
-        
-        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Dense Passage Retrieval for Legal Fact Classification")
     arglist = parse_default_args(parser)
     set_seed(arglist.seed)
-    # wandb.init(project="KLAID",
-    #            entity="77601251")
+    wandb.init(project="KLAID-base",
+               entity="klaid")
     dpr = AugDPR(arglist)
     fact_model, law_model = dpr.train_dpr()
-    dpr.save_dpr(fact_model, law_model)
