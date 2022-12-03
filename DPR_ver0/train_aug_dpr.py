@@ -7,6 +7,7 @@ from dataset import *
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer, AutoModel
+import re
 
 
 class AugDPR(object):
@@ -41,6 +42,15 @@ class AugDPR(object):
 
     def parse_args(self):
         self.parse_default_args()
+        
+    def clean(self, x):    
+        pattern = re.compile(f'[^ .,?!/@$%~％·∼()\x00-\x7F가-힣]+')
+        x = pattern.sub(' ', x)
+        x = x.replace('  ', ' ')
+        x = x.replace('( )', '')
+        x = x.replace('()', '')
+        x = x.strip()
+        return x
 
     def train_builder(self):
         fact = []
@@ -52,7 +62,9 @@ class AugDPR(object):
 
             fact.append(temp['fact'])
             service_id.append(temp['laws_service_id'])
-            context.append(self.label.iloc[temp['laws_service_id'], 2])
+            label = self.label.iloc[temp['laws_service_id'], 2]
+            label = self.clean(label)
+            context.append(label)
 
         # Build train dataset with columns ['fact', 'laws_service_id', 'context']
         df = pd.DataFrame({'fact': fact,
