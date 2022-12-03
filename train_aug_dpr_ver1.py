@@ -13,7 +13,7 @@ from src.logger import wandb_init
 class AugDPR(object):
     def __init__(self, arglist):
         self.arglist =  arglist
-        self.device = torch.device("cuda:" if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
     def train_dpr(self):
         print("\n=====     Dense Passage Retrieval for Legal Services     =====")
@@ -35,7 +35,7 @@ class AugDPR(object):
         # 4. Train DPR Model
         print("\n4. Training Dense Passage Retrieval for Legal Services...")
         
-        wandb_init(fact_model, law_model, self.arglist)
+        # wandb_init(fact_model, law_model, self.arglist)
         for epoch in range(self.arglist.num_epochs):
             loss_history, elapsed_time = train_model(train_dataloader=train_loader,
                                                      fact_model=fact_model,
@@ -56,7 +56,7 @@ class AugDPR(object):
                                                         elapsed_time=elapsed_time,
                                                         epochs=epoch,
                                                         device=self.device)
-        wandb.finish()
+        # wandb.finish()
 
 
         # 5. Return Valid Accuracy and Train Loss
@@ -84,8 +84,8 @@ class AugDPR(object):
 
 if __name__ == '__main__':
     set_seed(417)
-    wandb.init(project="KLAID",
-               entity="77601251")
+    # wandb.init(project="KLAID",
+    #            entity="77601251")
     parser = argparse.ArgumentParser("Dense Passage Retrieval for Legal Fact Classification")
     arglist = parse_default_args(parser)
     dpr = AugDPR(arglist)

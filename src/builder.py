@@ -6,6 +6,7 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 
 from src.dataset import *
+from src.utils import clean
 
 
 class Builder:
@@ -33,10 +34,9 @@ class Builder:
 
         for i in tqdm(range(len(self.data['train']))):
             temp = self.data['train'][i]
-
             fact.append(temp['fact'])
             service_id.append(temp['laws_service_id'])
-            context.append(self.label.iloc[temp['laws_service_id'], 2])
+            context.append(self.label.iloc[temp['laws_service_id'].apply(clean), 2])
 
         # Build train dataset with columns ['fact', 'laws_service_id', 'context']
         df = pd.DataFrame({'fact': fact,

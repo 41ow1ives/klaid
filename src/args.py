@@ -7,12 +7,12 @@ def parse_default_args(parser):
     parser.add_argument("--model_version", default='bert-base-multilingual-cased', type=str)
 
     # Data related
-    parser.add_argument("--label_path", default='./klaid_label.csv', type=str)
+    parser.add_argument("--label_path", default='./data/klaid_label.csv', type=str)
 
     # Training related
     parser.add_argument("--gpu_num", default=1, type=int)
     parser.add_argument("--test_size", default=0.1, type=float)
-    parser.add_argument("--batch_size", default=32, type=int)
+    parser.add_argument("--batch_size", default=16, type=int)
     parser.add_argument("--step_size", default=4, type=int)
     parser.add_argument("--lr", default=1e-08, type=float)
     parser.add_argument("--gamma", default=0.8, type=float)
