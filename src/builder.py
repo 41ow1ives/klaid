@@ -36,20 +36,21 @@ class Builder:
             temp = self.data['train'][i]
             fact.append(temp['fact'])
             service_id.append(temp['laws_service_id'])
-            context.append(self.label.iloc[temp['laws_service_id'].apply(clean), 2])
+            temp_label = self.label.iloc[temp['laws_service_id'], 2]
+            context.append(clean(temp_label))
 
         # Build train dataset with columns ['fact', 'laws_service_id', 'context']
         df = pd.DataFrame({'fact': fact,
                            'laws_service_id': service_id,
                            'context': context})
-
+        
         # Split dataset into train/test
         xtr, xte, ytr, yte = train_test_split(df.loc[:, ['fact', 'context']],
                                               df.loc[:, 'laws_service_id'],
                                               test_size=self.arglist.test_size,
                                               stratify=df.loc[:, 'laws_service_id'])
-        train = pd.concat([xtr.reset_index(drop=True), ytr.reset_index(drop=True)], axis=1)
-        valid = pd.concat([xte.reset_index(drop=True), yte.reset_index(drop=True)], axis=1)
+        train = pd.concat([xtr.reset_index(drop=True), ytr.reset_index(drop=True)], axis=1).iloc[:100]
+        valid = pd.concat([xte.reset_index(drop=True), yte.reset_index(drop=True)], axis=1).iloc[:100]
 
         return train, valid
 

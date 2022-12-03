@@ -1,7 +1,8 @@
 import argparse
 
 def parse_default_args(parser):
-    
+    # Setting related
+    parser.add_argument("--seed", default=417)
 
     # BERT related
     parser.add_argument("--model_version", default='bert-base-multilingual-cased', type=str)

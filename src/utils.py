@@ -15,7 +15,7 @@ def set_seed(seed=417):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
     
-def clean(self, x):    
+def clean(x):    
     pattern = re.compile(f'[^ .,?!/@$%~％·∼()\x00-\x7F가-힣]+')
     x = pattern.sub(' ', x)
     x = x.replace('  ', ' ')

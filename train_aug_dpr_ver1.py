@@ -4,6 +4,7 @@ import time
 import wandb
 import argparse
 import torch.optim as optim
+from sklearn.model_selection import StratifiedKFold
 from src.train import *
 from src.utils import set_seed
 from src.args import parse_default_args
@@ -54,7 +55,8 @@ class AugDPR(object):
                                                         fact_model=fact_model,
                                                         law_model=law_model,
                                                         elapsed_time=elapsed_time,
-                                                        epochs=epoch,
+                                                        epoch=epoch,
+                                                        loss=loss_history,
                                                         device=self.device)
         # wandb.finish()
 
@@ -83,11 +85,11 @@ class AugDPR(object):
         
 
 if __name__ == '__main__':
-    set_seed(417)
-    # wandb.init(project="KLAID",
-    #            entity="77601251")
     parser = argparse.ArgumentParser("Dense Passage Retrieval for Legal Fact Classification")
     arglist = parse_default_args(parser)
+    set_seed(arglist.seed)
+    # wandb.init(project="KLAID",
+    #            entity="77601251")
     dpr = AugDPR(arglist)
     fact_model, law_model = dpr.train_dpr()
     dpr.save_dpr(fact_model, law_model)

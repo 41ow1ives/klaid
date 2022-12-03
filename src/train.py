@@ -97,7 +97,7 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
                 law_model: nn.Module,
                 elapsed_time: int,
                 epoch: int,
-                loss: int,
+                loss: list,
                 device):
     
     top_1_history = []
@@ -116,6 +116,7 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
         law_embs = []
 
         for law in label_corpus:
+            print(law)
             tokenized_label = law_tokenizer(law, padding='max_length', truncation=True, return_tensors='pt').to(device=device)
             embedded_label = law_model(tokenized_label).pooler_output.cpu().numpy()
             law_embs.append(embedded_label)
@@ -152,6 +153,7 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
         top_10_history.append(top_10 / len(valid_dataset))
         top_25_history.append(top_25 / len(valid_dataset))
 
+    loss = loss.mean()
     print(f"[{time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}] Epoch {epoch + 1:3d}  Train Loss: {loss:6.5f} | Top 1 Accuracy : {top_1 / len(valid_dataset):1.5f} | Top  5 Accuracy : {top_5 / len(valid_dataset):1.5f} | Top 10 Accuracy : {top_10 / len(valid_dataset):1.5f}")
 
     return top_1_history, top_5_history, top_10_history, top_25_history
