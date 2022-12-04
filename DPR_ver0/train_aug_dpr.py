@@ -42,6 +42,7 @@ class AugDPR(object):
         self.parser.add_argument("--weight_decay", default=0.1, type=float)
         self.parser.add_argument("--optimizer", default="AdamW", type=str)
         self.parser.add_argument("--adam_eps", default=1e-08, type=float)
+        self.parser.add_argument("--num_accumulation_step", default=1, type=int)
 
     def parse_args(self):
         self.parse_default_args()
@@ -149,6 +150,7 @@ class AugDPR(object):
                                                                  step_size=self.arglist.step_size,
                                                                  gamma=self.arglist.gamma,
                                                                  lr=self.arglist.lr,
+                                                                 num_accumulation_step=self.arglist.num_accumulation_step,
                                                                  device=self.device)
 
         # 4. Return Valid Accuracy and Train Loss
