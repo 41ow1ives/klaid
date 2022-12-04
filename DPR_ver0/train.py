@@ -21,6 +21,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
                 step_size: int,
                 gamma: float,
                 lr: float,
+                num_accumulation_step: int,
                 device):
 
     # Tracking Loss
@@ -85,7 +86,8 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
             print(f"Batch Number {i:5d} Finished! - Loss = {loss.item():1.5f}")
 
             # Update
-            optimizer.step()
+            if ((i + 1) % num_accumulation_step == 0) or (i + 1 == len(train_dataloader)):
+                optimizer.step()
             elapsed_time = time.time() - start
 
         # Scheduler
