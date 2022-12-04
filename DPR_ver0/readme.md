@@ -9,6 +9,7 @@
 - weight_decay: weight decay 값
 - optimizer: AdamW로 일단 고정되어 있음
 - adam_eps: AdamW에 들어가는 eps 값
+- num_accumulation_step:  weight를 업데이트 몇 번째 iteration마다 할 것인지 (default: 1)
 
 ** 실행 예시
 python train_aug_dpr.py --model_version='bert-base-multilingual-cased'
@@ -23,3 +24,4 @@ python train_aug_dpr.py --model_version='bert-base-multilingual-cased'
                         --weight_decay=0.1
                         --optimizer="AdamW"
                         --adam_eps=1e-08
+                        --num_accumulation_step=10
