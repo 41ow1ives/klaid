@@ -13,7 +13,7 @@ from src.logger import wandb_init
 
 class AugDPR(object):
     def __init__(self, arglist):
-        self.arglist =  arglist
+        self.arglist = arglist
         self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
     def train_dpr(self):
@@ -50,6 +50,7 @@ class AugDPR(object):
                                                                             step_size=self.arglist.step_size,
                                                                             gamma=self.arglist.gamma,
                                                                             lr=self.arglist.lr,
+                                                                            num_accumulation_step=self.arglist.num_accumulation_step,
                                                                             device=self.device)
             top_1, top_5, top_10, top_25 = valid_model(valid_dataset=valid_dataset,
                                                        label_corpus=label_corpus,
