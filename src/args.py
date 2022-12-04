@@ -21,6 +21,7 @@ def parse_default_args(parser):
     parser.add_argument("--weight_decay", default=0.1, type=float)
     parser.add_argument("--optimizer", default="AdamW", type=str)
     parser.add_argument("--adam_eps", default=1e-08, type=float)
+    parser.add_argument("--num_accumulation_step", default=1, type=int)
     
     # Save related
     parser.add_argument("--model_dir", default="./models", type=str)
