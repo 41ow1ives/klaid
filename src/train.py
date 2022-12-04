@@ -15,6 +15,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
                 law_model: nn.Module,
                 batch_size,
                 scheduler: optim.lr_scheduler,
+                num_accumulation_step: int,
                 weight_decay: float,
                 adam_eps: float,
                 step_size: int,
@@ -80,7 +81,8 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
         print(f"Batch Number {i:5d} Finished! - Loss = {loss.item():1.5f}")
 
         # Update
-        optimizer.step()
+        if ((i + 1) % num_accumulation_step == 0) or (i + 1 == len(train_dataloader)):
+            optimizer.step()
         elapsed_time = time.time() - start
 
     # Scheduler
