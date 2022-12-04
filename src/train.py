@@ -21,6 +21,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
                 step_size: int,
                 gamma: float,
                 lr: float,
+                num_accumulation_step: int,
                 device):
 
     # Tracking Loss
