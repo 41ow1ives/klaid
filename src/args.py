@@ -32,3 +32,23 @@ def parse_default_args(parser):
     
     args = parser.parse_args()
     return args
+
+def parse_inference_args(parser):
+    # Setting related
+    parser.add_argument("--seed", default=417)
+    
+    # BERT related
+    parser.add_argument("--model_version", default='bert-base-multilingual-cased', type=str)
+    
+    # Data related
+    parser.add_argument("--label_path", default='./data/klaid_label.csv', type=str)
+    
+    # model related
+    parser.add_argument("--fact_model_path", default='./models/FACT_12_05_00epoch5_score0.0.pt', type=str)
+    parser.add_argument("--law_model_path", default='./models/LAW_12_05_00epoch5_score0.0.pt', type=str)
+    parser.add_argument("--batch_size", default=16, type=int)
+    # inference related
+    parser.add_argument("--gpu_num", default=0, type=int)
+    
+    args = parser.parse_args()
+    return args
