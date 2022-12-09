@@ -14,11 +14,12 @@ from src.logger import wandb_init
 class AugDPR(object):
     def __init__(self, arglist):
         self.arglist = arglist
-        self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(f"cuda:{self.arglist.gpu_num}" if torch.cuda.is_available() else 'cpu')
 
     def train_dpr(self):
         print("\n=====     Dense Passage Retrieval for Legal Services     =====")
-        print("\n** Active GPU Number : ", self.arglist.gpu_num)
+        print("\n ** Active GPU Number   : ", self.arglist.gpu_num)
+        print(" ** Baseline BERT Model : ", self.arglist.model_version)
 
         builder = Builder(self.arglist)
         # 1. Bring Pretrained Models
@@ -31,7 +32,8 @@ class AugDPR(object):
 
         # 3. Build DataLoader
         print("\n3. Making DataLoaders...")
-        train_loader, valid_dataset, label_corpus = builder.dataloader_builder(train=train, valid=valid)
+        print(f" **Using {self.arglist.train_sample_rate * 100:2.2f}% of Total Data")
+        train_loader, valid_dataset, label_corpus = builder.dataloader_builder(train=train, valid=valid, sample_rate=self.arglist.train_sample_rate)
 
         # 4. Train DPR Model
         print("\n4. Training Dense Passage Retrieval for Legal Services...")
@@ -55,12 +57,12 @@ class AugDPR(object):
             top_1, top_5, top_10, top_25 = valid_model(valid_dataset=valid_dataset,
                                                        label_corpus=label_corpus,
                                                        law_tokenizer=law_tokenizer,
-                                                        fact_model=fact_model,
-                                                        law_model=law_model,
-                                                        elapsed_time=elapsed_time,
-                                                        epoch=epoch,
-                                                        loss=loss_history,
-                                                        device=self.device)
+                                                       fact_model=fact_model,
+                                                       law_model=law_model,
+                                                       elapsed_time=elapsed_time,
+                                                       epoch=epoch,
+                                                       loss=loss_history,
+                                                       device=self.device)
             wandb.log({'train_loss':np.mean(loss_history),
                        'top_1_mean':np.mean(top_1),
                        'top_5_mean':np.mean(top_5),
