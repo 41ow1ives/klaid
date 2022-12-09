@@ -27,7 +27,7 @@ def clean(x):
 
 def save_dpr(fact_model, law_model, epoch, score, arglist):
     # 6. Save Models
-    print("\n6. Save Models")
+    # print("\n6. Save Models")
     fact_dir = os.path.join(arglist.model_dir, 'fact_model')
     law_dir = os.path.join(arglist.model_dir, 'law_model')
     os.makedirs(fact_dir, exist_ok=True)

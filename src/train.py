@@ -44,7 +44,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
 
     # Train Log
     start = time.time()
-    print("=====          DPR Training Started          =====\n")
+    #print("=====          DPR Training Started          =====\n")
 
     fact_model.train()
     law_model.train()
@@ -78,7 +78,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
         loss.backward()
 
         # Temp Log
-        print(f"    Batch Number {i:5d} Finished! - Loss = {loss.item():1.5f}")
+        # print(f"    Batch Number {i:5d} Finished! - Loss = {loss.item():1.5f}")
 
         # Update
         if ((i + 1) % num_accumulation_step == 0) or (i + 1 == len(train_dataloader)):
@@ -142,16 +142,16 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
                 valid_sim_scores[i] = score
 
             # Sorting
-            rank = valid_sim_scores.sort()[0]
+            # rank = valid_sim_scores.sort()[0]
 
             # Update Accuracy of Top N Ranked
-            if fact['laws_service_id'] == rank[0]:
+            if fact['laws_service_id'] in torch.topk(valid_sim_scores, k=1).indices:
                 top_1 += 1
-            if fact['laws_service_id'] in rank[0:5]:
+            if fact['laws_service_id'] in torch.topk(valid_sim_scores, k=5).indices:
                 top_5 += 1
-            if fact['laws_service_id'] in rank[0:10]:
+            if fact['laws_service_id'] in torch.topk(valid_sim_scores, k=10).indices:
                 top_10 += 1
-            if fact['laws_service_id'] in rank[0:25]:
+            if fact['laws_service_id'] in torch.topk(valid_sim_scores, k=25).indices:
                 top_25 += 1
 
         top_1_history.append(top_1 / len(valid_dataset))
@@ -160,6 +160,6 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
         top_25_history.append(top_25 / len(valid_dataset))
 
     loss = np.mean(loss)
-    print(f"[{time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}] Epoch {epoch + 1:3d}  Train Loss: {loss:6.5f} | Top 1 Accuracy : {top_1 / len(valid_dataset):1.5f} | Top  5 Accuracy : {top_5 / len(valid_dataset):1.5f} | Top 10 Accuracy : {top_10 / len(valid_dataset):1.5f}")
+    print(f"  [{time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}] Epoch {epoch + 1:3d}  Train Loss: {loss:6.5f} | Top 1 Accuracy : {top_1 / len(valid_dataset):1.5f} | Top  5 Accuracy : {top_5 / len(valid_dataset):1.5f} | Top 10 Accuracy : {top_10 / len(valid_dataset):1.5f}")
 
     return top_1_history, top_5_history, top_10_history, top_25_history

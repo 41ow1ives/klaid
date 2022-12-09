@@ -9,12 +9,12 @@ def parse_default_args(parser):
 
     # Data related
     parser.add_argument("--label_path", default='./data/klaid_label.csv', type=str)
-    parser.add_argument("--train_sample_rate", default=0.001, type=float)
+    parser.add_argument("--train_sample_rate", default=0.01, type=float)
 
     # Training related
     parser.add_argument("--gpu_num", default=0, type=int)
     parser.add_argument("--test_size", default=0.2, type=float)
-    parser.add_argument("--batch_size", default=3, type=int)
+    parser.add_argument("--batch_size", default=4, type=int)
     parser.add_argument("--step_size", default=4, type=int)
     parser.add_argument("--lr", default=1e-07, type=float)
     parser.add_argument("--gamma", default=0.8, type=float)
