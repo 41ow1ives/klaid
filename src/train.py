@@ -43,7 +43,6 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
     scheduler = scheduler(optimizer=optimizer, step_size=step_size, gamma=gamma)
 
     # Train Log
-    start = time.time()
     #print("=====          DPR Training Started          =====\n")
 
     fact_model.train()
@@ -83,7 +82,6 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
         # Update
         if ((i + 1) % num_accumulation_step == 0) or (i + 1 == len(train_dataloader)):
             optimizer.step()
-        elapsed_time = time.time() - start
 
     # Scheduler
     scheduler.step()
@@ -91,7 +89,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
     # Logging
     train_loss_history.append(loss.item())
 
-    return train_loss_history, elapsed_time, fact_model, law_model
+    return train_loss_history, fact_model, law_model
 
 
 def valid_model(valid_dataset: torch.utils.data.Dataset,
@@ -99,9 +97,9 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
                 law_tokenizer,
                 fact_model: nn.Module,
                 law_model: nn.Module,
-                elapsed_time: int,
                 epoch: int,
                 loss: list,
+                start,
                 device):
     
     top_1_history = []
@@ -129,13 +127,14 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
 
         # Embed Facts in Valid Loader
         fact_model.eval()
-        fact_model.to('cpu')
+        # fact_model.to('cpu')
 
         for fact in valid_dataset:
-            embedded_fact = fact_model(fact['f_input_ids'].unsqueeze(0).detach().cpu(),
-                                       fact['f_token_type_ids'].unsqueeze(0).detach().cpu(),
-                                       fact['f_attention_mask'].unsqueeze(0).detach().cpu()).pooler_output.cpu()
+            embedded_fact = fact_model(fact['f_input_ids'].to(device=device, dtype=torch.long).unsqueeze(0),
+                                       fact['f_token_type_ids'].to(device=device, dtype=torch.long).unsqueeze(0),
+                                       fact['f_attention_mask'].to(device=device, dtype=torch.long).unsqueeze(0)).pooler_output
             # Calculate Similarity Score with 177 labels
+            embedded_fact = embedded_fact.detach().cpu()
             valid_sim_scores = torch.zeros(len(law_embs))
             for i, emb in enumerate(law_embs):
                 score = torch.matmul(embedded_fact, emb)
@@ -153,6 +152,8 @@ def valid_model(valid_dataset: torch.utils.data.Dataset,
                 top_10 += 1
             if fact['laws_service_id'] in torch.topk(valid_sim_scores, k=25).indices:
                 top_25 += 1
+
+        elapsed_time = time.time() - start
 
         top_1_history.append(top_1 / len(valid_dataset))
         top_5_history.append(top_5 / len(valid_dataset))

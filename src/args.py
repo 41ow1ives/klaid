@@ -9,7 +9,7 @@ def parse_default_args(parser):
 
     # Data related
     parser.add_argument("--label_path", default='./data/klaid_label.csv', type=str)
-    parser.add_argument("--train_sample_rate", default=0.01, type=float)
+    parser.add_argument("--train_sample_rate", default=0.001, type=float)
 
     # Training related
     parser.add_argument("--gpu_num", default=0, type=int)
