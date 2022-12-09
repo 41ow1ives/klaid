@@ -8,7 +8,9 @@ class KLAID(torch.utils.data.Dataset):
                  fact_tokenizer,
                  law_tokenizer,
                  data: pd.DataFrame,
-                 shuffle: bool):
+                 shuffle: bool,
+                 sample_rate: float):
+        data = data.sample(frac=sample_rate, random_state=42).reset_index(drop=True)
         self.data = data
         if shuffle:
             self.data.sample(frac=1).reset_index(drop=True)

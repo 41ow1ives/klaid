@@ -9,13 +9,14 @@ def parse_default_args(parser):
 
     # Data related
     parser.add_argument("--label_path", default='./data/klaid_label.csv', type=str)
+    parser.add_argument("--train_sample_rate", default=0.001, type=float)
 
     # Training related
-    parser.add_argument("--gpu_num", default=1, type=int)
-    parser.add_argument("--test_size", default=0.3, type=float)
-    parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument("--gpu_num", default=0, type=int)
+    parser.add_argument("--test_size", default=0.2, type=float)
+    parser.add_argument("--batch_size", default=3, type=int)
     parser.add_argument("--step_size", default=4, type=int)
-    parser.add_argument("--lr", default=1e-08, type=float)
+    parser.add_argument("--lr", default=1e-07, type=float)
     parser.add_argument("--gamma", default=0.8, type=float)
     parser.add_argument("--num_epochs", default=10, type=int)
     parser.add_argument("--weight_decay", default=0.1, type=float)
@@ -29,26 +30,6 @@ def parse_default_args(parser):
     # Wandb related
     parser.add_argument("--project", default="KLAID", type=str)
     parser.add_argument("--entity", default="77601251")
-    
-    args = parser.parse_args()
-    return args
-
-def parse_inference_args(parser):
-    # Setting related
-    parser.add_argument("--seed", default=417)
-    
-    # BERT related
-    parser.add_argument("--model_version", default='bert-base-multilingual-cased', type=str)
-    
-    # Data related
-    parser.add_argument("--label_path", default='./data/klaid_label.csv', type=str)
-    
-    # model related
-    parser.add_argument("--fact_model_path", default='./models/FACT_12_05_00epoch5_score0.0.pt', type=str)
-    parser.add_argument("--law_model_path", default='./models/LAW_12_05_00epoch5_score0.0.pt', type=str)
-    parser.add_argument("--batch_size", default=16, type=int)
-    # inference related
-    parser.add_argument("--gpu_num", default=0, type=int)
     
     args = parser.parse_args()
     return args

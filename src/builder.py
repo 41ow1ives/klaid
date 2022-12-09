@@ -54,16 +54,18 @@ class Builder:
 
         return train, valid
 
-    def dataloader_builder(self, train, valid):
+    def dataloader_builder(self, train, valid, sample_rate):
         # torch Dataset
         train_dataset = KLAID(fact_tokenizer=self.fact_tokenizer,
                               law_tokenizer=self.law_tokenizer,
                               data=train,
-                              shuffle=False)
+                              shuffle=False,
+                              sample_rate=sample_rate)
         valid_dataset = KLAID(fact_tokenizer=self.fact_tokenizer,
                               law_tokenizer=self.law_tokenizer,
                               data=valid,
-                              shuffle=False)
+                              shuffle=False,
+                              sample_rate=sample_rate)
 
         # Corpus of 177 Labels
         label_corpus = list(self.label['context'])

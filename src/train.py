@@ -49,7 +49,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
     fact_model.train()
     law_model.train()
 
-    for i, dict in tqdm(enumerate(train_dataloader)):
+    for i, dict in enumerate(train_dataloader):
         # Fact Encoder Input
         f_input_ids = dict['f_input_ids'].to(device=device, dtype=torch.long)
         f_token_type_ids = dict['f_token_type_ids'].to(device=device, dtype=torch.long)
@@ -78,7 +78,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
         loss.backward()
 
         # Temp Log
-        print(f"Batch Number {i:5d} Finished! - Loss = {loss.item():1.5f}")
+        print(f"    Batch Number {i:5d} Finished! - Loss = {loss.item():1.5f}")
 
         # Update
         if ((i + 1) % num_accumulation_step == 0) or (i + 1 == len(train_dataloader)):
