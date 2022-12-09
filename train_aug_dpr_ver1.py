@@ -20,6 +20,7 @@ class AugDPR(object):
         print("\n=====     Dense Passage Retrieval for Legal Services     =====")
         print("\n ** Active GPU Number   : ", self.arglist.gpu_num)
         print(" ** Baseline BERT Model : ", self.arglist.model_version)
+        print(f" ** Using {self.arglist.train_sample_rate * 100:3.2f}% of Total Data")
 
         builder = Builder(self.arglist)
         # 1. Bring Pretrained Models
@@ -32,8 +33,6 @@ class AugDPR(object):
 
         # 3. Build DataLoader
         print("\n3. Making DataLoaders...")
-        print(f" **Using {self.arglist.train_sample_rate * 100:2.2f}% of Total Data")
-        print(f" Batch Size: {self.arglist.batch_size}")
         train_loader, valid_dataset, label_corpus = builder.dataloader_builder(train=train, valid=valid, sample_rate=self.arglist.train_sample_rate)
 
         # 4. Train DPR Model
@@ -41,9 +40,11 @@ class AugDPR(object):
         
         best_top_1 = -1
         wandb_init(fact_model, law_model, self.arglist)
+
+        start = time.time()
         
         for epoch in range(self.arglist.num_epochs):
-            loss_history, elapsed_time, fact_model, law_model = train_model(train_dataloader=train_loader,
+            loss_history, fact_model, law_model = train_model(train_dataloader=train_loader,
                                                                             fact_model=fact_model,
                                                                             law_model=law_model,
                                                                             batch_size=self.arglist.batch_size,
@@ -60,7 +61,7 @@ class AugDPR(object):
                                                        law_tokenizer=law_tokenizer,
                                                        fact_model=fact_model,
                                                        law_model=law_model,
-                                                       elapsed_time=elapsed_time,
+                                                       start=start,
                                                        epoch=epoch,
                                                        loss=loss_history,
                                                        device=self.device)
@@ -72,7 +73,7 @@ class AugDPR(object):
             
             if best_top_1 <= np.mean(top_1):
                 best_top_1 = np.mean(top_1)
-                print(f"\n Saving Models... epoch: {epoch}, score: {best_top_1}")
+                print(f"      Saving Models... epoch: {epoch + 1}, score: {best_top_1}")
                 save_dpr(fact_model, law_model, epoch, best_top_1, arglist)
                 
         wandb.finish()
