@@ -33,6 +33,7 @@ class AugDPR(object):
         # 3. Build DataLoader
         print("\n3. Making DataLoaders...")
         print(f" **Using {self.arglist.train_sample_rate * 100:2.2f}% of Total Data")
+        print(f" Batch Size: {self.arglist.batch_size}")
         train_loader, valid_dataset, label_corpus = builder.dataloader_builder(train=train, valid=valid, sample_rate=self.arglist.train_sample_rate)
 
         # 4. Train DPR Model
