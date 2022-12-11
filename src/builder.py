@@ -19,6 +19,14 @@ class Builder:
         self.law_tokenizer = AutoTokenizer.from_pretrained(self.arglist.model_version)
         self.fact_model = AutoModel.from_pretrained(self.arglist.model_version)
         self.law_model = AutoModel.from_pretrained(self.arglist.model_version)
+        
+        # Add tokens
+        self.tokens = ["도로교통법", "형법", "교통사고처리특례법", "성폭력범죄의처벌등에관한특례법", "폭력행위등처벌에관한법률",
+                      "특정범죄가중처벌등에관한법률", "자동차손해배상보장법", "정보통신망이용촉진및정보보호등에관한법률", "아동ㆍ청소년의성보호에관한법률",
+                      "특정경제범죄가중처벌등에관한법률", "정보통신망이용촉진및정보보호등에관한법률", "아동청소년의성보호에관한법률",]
+        self.num_added_tokens = self.law_tokenizer.add_tokens(self.tokens)
+        print(f"Added {self.num_added_tokens} tokens.")
+        self.law_model.resize_token_embeddings(len(self.law_tokenizer))
 
         return self.fact_tokenizer, self.law_tokenizer, self.fact_model, self.law_model
 
