@@ -74,6 +74,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
         targets = targets.to(device=device)
 
         loss = F.nll_loss(sim_scores, targets)
+        loss = loss / num_accumulation_step
         loss.backward()
 
         # Temp Log
@@ -82,6 +83,7 @@ def train_model(train_dataloader: torch.utils.data.DataLoader,
         # Update
         if ((i + 1) % num_accumulation_step == 0) or (i + 1 == len(train_dataloader)):
             optimizer.step()
+            optimizer.zero_grad()
 
     # Scheduler
     scheduler.step()
